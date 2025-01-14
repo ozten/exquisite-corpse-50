@@ -1,0 +1,32 @@
+{
+  "name": "exquisite-corpse-analyzer",
+  "version": "1.0.0",
+  "description": "Analyze exquisite corpse drawings using Claude Vision API",
+  "main": "dist/ExquisiteCorpseAnalyzer.js",
+  "scripts": {
+    "start": "ts-node src/ExquisiteCorpseAnalyzer.ts",
+    "build": "tsc",
+    "analyze-single": "ts-node src/ExquisiteCorpseAnalyzer.ts --single",
+    "analyze-dir": "ts-node src/ExquisiteCorpseAnalyzer.ts --dir",
+    "generate-art": "ts-node src/generatePaintedVersion.ts"
+  },
+  "keywords": [
+    "claude",
+    "vision",
+    "art",
+    "analysis",
+    "fal-ai"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.18.0",
+    "@fal-ai/client": "^0.8.2",
+    "dotenv": "^16.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.16"
+  }
+}
