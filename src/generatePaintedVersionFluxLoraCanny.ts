@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs/promises';
 
-const FAL_MODEL = `fal-ai/flux-lora-canny`; // `fal-ai/flux-pro/v1.1-ultra/redux`;
+const FAL_MODEL = `fal-ai/flux-lora-canny`;
 
 // Load environment variables
 dotenv.config();
@@ -27,12 +27,27 @@ async function readImageFile(imagePath: string): Promise<string> {
   }
 }
 
-async function generateAndSaveImage(inputImagePath?: string): Promise<void> {
+async function readPromptFile(promptDir: string, imagePath: string): Promise<string> {
   try {
-    // Check if image path is provided
-    if (!inputImagePath) {
-      console.error('Please provide an input image path as an argument');
-      console.log('Usage: npm run generate-art -- path/to/your/image.jpg');
+    // Get the filename without extension and add .txt
+    const baseFileName = path.basename(imagePath, path.extname(imagePath));
+    const promptPath = path.join(promptDir, `${baseFileName}.txt`);
+    
+    // Read and return the prompt
+    const prompt = await fs.readFile(promptPath, 'utf-8');
+    return prompt.trim();
+  } catch (error) {
+    console.error('Error reading prompt file:', error);
+    throw error;
+  }
+}
+
+async function generateAndSaveImage(inputImagePath?: string, promptDir?: string): Promise<void> {
+  try {
+    // Check if required arguments are provided
+    if (!inputImagePath || !promptDir) {
+      console.error('Please provide both input image path and prompt directory as arguments');
+      console.log('Usage: npm run generate-art -- path/to/your/image.jpg path/to/prompt/directory');
       process.exit(1);
     }
 
@@ -40,18 +55,20 @@ async function generateAndSaveImage(inputImagePath?: string): Promise<void> {
     const imageDataUri = await readImageFile(inputImagePath);
     console.log('Image loaded successfully');
 
+    // Read the prompt from the corresponding text file
+    const prompt = await readPromptFile(promptDir, inputImagePath);
+    console.log('Prompt loaded successfully');
+
     const result = await fal.subscribe(FAL_MODEL, {
       input: {
-        prompt: `A whimsical oil painting of an otherworldly creature with an oversized head in the style of Tim Burton. The top third shows wide, expressive eyes with long lashes and thin, arched eyebrows. The middle section depicts a mouth stretched into an impish grin, revealing teeth. The bottom portion consists of a plump, rounded body with thin, stick-like limbs ending in pointed claws, standing on a patch of grass with stylized sailboats in the background.
-        `,
+        prompt,
         num_inference_steps: 28,
-    guidance_scale: 30,
-    num_images: 1,
-    enable_safety_checker: false,
-    output_format: "jpeg",
-    image_size: "portrait_4_3",
-    image_url: imageDataUri,  // Use the base64 data URI        
-        
+        guidance_scale: 30,
+        num_images: 1,
+        enable_safety_checker: false,
+        output_format: "jpeg",
+        image_size: "portrait_4_3",
+        image_url: imageDataUri,
       },
       logs: true,
       onQueueUpdate: (status: QueueStatus) => {
@@ -68,36 +85,34 @@ async function generateAndSaveImage(inputImagePath?: string): Promise<void> {
     // Log the request ID
     console.log('Request ID:', result.requestId);
 
-    // Ensure ai_paintings directory exists
-    const outputDir = path.join(__dirname, '..', 'ai_paintings');
-    await fs.mkdir(outputDir, { recursive: true });
-
     // Get the image data from the result
     const images = result.data.images;
     if (!images || images.length === 0) {
       throw new Error('No images generated');
     }
 
-    // Save each generated image
-    for (let i = 0; i < images.length; i++) {
-      const imageData = images[i].url;
-      if (!imageData) {
-        console.warn(`No image data for image ${i + 1}`);
-        continue;
-      }
-
-      // Create filename with timestamp and index
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = path.join(outputDir, `burton-alien-${timestamp}-${i + 1}.jpg`);
-
-      // For URLs, we need to fetch the image first
-      const response = await fetch(imageData);
-      const buffer = Buffer.from(await response.arrayBuffer());
-      
-      // Save the image
-      await fs.writeFile(filename, buffer);
-      console.log(`Image saved as: ${filename}`);
+    // Save the generated image back to the input location
+    const imageData = images[0].url;
+    if (!imageData) {
+      throw new Error('No image data generated');
     }
+
+    // Fetch and save the image
+    const response = await fetch(imageData);
+    const buffer = Buffer.from(await response.arrayBuffer());
+    
+    // Ensure ai_paintings directory exists
+    const outputDir = path.join(process.cwd(), 'ai_paintings');
+    await fs.mkdir(outputDir, { recursive: true });
+
+    // Create filename using original name but in ai_paintings directory
+    const originalFileName = path.basename(inputImagePath);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    const outputPath = path.join(outputDir, `${path.parse(originalFileName).name}-${timestamp}.jpg`);
+
+    // Save the image to ai_paintings directory
+    await fs.writeFile(outputPath, buffer);
+    console.log(`Image saved as: ${outputPath}`);
 
   } catch (error) {
     console.error('Error:', error);
@@ -105,8 +120,8 @@ async function generateAndSaveImage(inputImagePath?: string): Promise<void> {
   }
 }
 
-// Get the image path from command line arguments
-const inputImagePath = process.argv[2];
+// Get the arguments from command line
+const [inputImagePath, promptDir] = process.argv.slice(2);
 
-// Run the function with the provided image path
-generateAndSaveImage(inputImagePath);
+// Run the function with the provided arguments
+generateAndSaveImage(inputImagePath, promptDir);
