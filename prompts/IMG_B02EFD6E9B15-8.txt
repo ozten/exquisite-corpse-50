@@ -1,0 +1,9 @@
+A detailed prompt for Flux image generation capturing the style and content of this painting:
+
+Upper third: A whimsical portrait of a woman with flowing, wavy hair and a serene smile, drawn with thin, graceful lines in a style reminiscent of Henri Matisse. Her features are simplified yet expressive.
+
+Middle third: The woman's torso seamlessly transitions into a stylized guitar or violin, with curved lines forming the instrument's body. The strings extend upward, resembling a continuation of her hair. This section is more abstract, focusing on the interplay of musical and human forms.
+
+Lower third: The base of the image depicts a bicycle with large, sketched wheels and a simplified frame. The circular wheels echo the curves present throughout the painting, creating a sense of unity and rhythm.
+
+Overall, the image is a playful, surreal composition that combines elements of portraiture, music, and everyday objects in a fluid, minimalist style with an emphasis on line work. The prompt should capture the dreamy, whimsical atmosphere and the seamless integration of the three distinct sections, "in the style of a minimalist line painting by Henri Matisse."

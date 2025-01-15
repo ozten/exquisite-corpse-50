@@ -1,0 +1,5 @@
+A surreal painting in the sketchy, expressive line art style of Pablo Picasso. The top third shows a woman's elongated head and hair morphing into swirling, leafy tree branches. The middle section depicts her torso with arms crossed, rendered in fragmented, angular shapes. The bottom third transitions into flowing, organic lines reminiscent of a tree trunk or tentacles.
+
+Flux prompt capturing the style and content:
+
+/imagine prompt: A Picasso-esque painting. Top third: A woman's distorted head with almond-shaped eyes seamlessly transforming into curving, leafy tree branches. Middle: Her angular, cubist-style torso with arms crossed, composed of interlocking geometric shapes and bold, sketchy lines. Bottom: An organic tangle of sinuous, flowing lines evoking tree roots or tentacles. The composition is surreal and disjointed, yet maintains an overall coherence through the fluid, gestural linework in Picasso's distinctive avant-garde style. Monochromatic with an emphasis on expressive, energetic pen strokes.

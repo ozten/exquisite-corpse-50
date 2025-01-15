@@ -1,0 +1,7 @@
+A crocodile or dinosaur-like creature drawn in a sketchy, pencil style. The top third shows the head, with a speech bubble asking "I are Austin?". The creature has large eyes, sharp teeth, and a spiky head.
+
+The middle section depicts the torso, with a zig-zag spine or plates running down the back. Anatomical labels like "ribs", "flank", "asshole" point to various body parts. The sketch lines are loose and gestural.
+
+The bottom third illustrates the legs, tail, and underside. The legs are bent, with claws or toes detailed. The tail curls up behind the animal. Shading suggests shadows and dimension.
+
+Flux prompt: Pencil sketch of a dinosaur-crocodile creature, top third showing head with speech bubble, large eyes, teeth, spiky head. Middle third with zig-zag spined torso, anatomical labels. Bottom third detailing bent legs, claws, curling tail, underbelly shading. Loose, gestural linework throughout in the style of Ralph Steadman.

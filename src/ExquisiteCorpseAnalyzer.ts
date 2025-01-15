@@ -3,6 +3,9 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import dotenv from 'dotenv';
 
+
+// ts-node src/ExquisiteCorpseAnalyzer.ts --dir ./prompts/ ./preview/
+
 dotenv.config();
 
 class ExquisiteCorpseAnalyzer {
@@ -16,7 +19,7 @@ class ExquisiteCorpseAnalyzer {
 
     this.systemPrompt = `
       Please look at this exquisite corpse drawing. 
-      Think about which famouse artist or illustrator you could see creating this.
+      Think about which famouse artist or illustrator you could see creating this.      
       Please describe the most important features and then note "in the style of" and the artist's name.
     `;
   }

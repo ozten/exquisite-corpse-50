@@ -1,0 +1,9 @@
+A detailed prompt for Flux image generation that captures the style and content of this painting:
+
+The top third shows a person's head consisting of tangled, curly hair drawn with a single wavy line. The eyes are simple dots and the center of the head has a sign that says "hello mac" in a handwritten style, in the whimsical, minimalist ink painting style of Shel Silverstein.
+
+The middle section depicts the figure sitting at a computer, with just a few simple lines sketching out the keyboard and monitor in front of them. Wavy lines convey a sense of mental energy or processing. The style shifts to be even more abstract and gestural, reminiscent of Saul Steinberg's playful line paintings.
+
+In the bottom third, the computer wires transition into a jumble of blue stringy, ribbon-like lines that spread out and tangle together, forming an surreal, organic shape on the ground. This abstract shape contrasts with the representational elements above, evoking Picasso's single-line paintings and incorporating a dash of Dalí's surrealism in the free-flowing, biomorphic forms.
+
+The overall composition moves from a more recognizable scene to increasing abstraction, while maintaining a unified, minimalist pen and ink style throughout. The limited color palette of black and blue on white adds graphic punch.

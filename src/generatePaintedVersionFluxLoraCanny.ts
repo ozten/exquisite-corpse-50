@@ -42,22 +42,15 @@ async function readPromptFile(promptDir: string, imagePath: string): Promise<str
   }
 }
 
-async function generateAndSaveImage(inputImagePath?: string, promptDir?: string): Promise<void> {
+async function processImage(inputImagePath: string, promptDir: string): Promise<void> {
   try {
-    // Check if required arguments are provided
-    if (!inputImagePath || !promptDir) {
-      console.error('Please provide both input image path and prompt directory as arguments');
-      console.log('Usage: npm run generate-art -- path/to/your/image.jpg path/to/prompt/directory');
-      process.exit(1);
-    }
-
     // Convert image to base64
     const imageDataUri = await readImageFile(inputImagePath);
-    console.log('Image loaded successfully');
+    console.log(`Image loaded successfully: ${inputImagePath}`);
 
     // Read the prompt from the corresponding text file
     const prompt = await readPromptFile(promptDir, inputImagePath);
-    console.log('Prompt loaded successfully');
+    console.log('Prompt loaded successfully', prompt);
 
     const result = await fal.subscribe(FAL_MODEL, {
       input: {
@@ -91,16 +84,11 @@ async function generateAndSaveImage(inputImagePath?: string, promptDir?: string)
       throw new Error('No images generated');
     }
 
-    // Save the generated image back to the input location
     const imageData = images[0].url;
     if (!imageData) {
       throw new Error('No image data generated');
     }
 
-    // Fetch and save the image
-    const response = await fetch(imageData);
-    const buffer = Buffer.from(await response.arrayBuffer());
-    
     // Ensure ai_paintings directory exists
     const outputDir = path.join(process.cwd(), 'ai_paintings');
     await fs.mkdir(outputDir, { recursive: true });
@@ -110,18 +98,83 @@ async function generateAndSaveImage(inputImagePath?: string, promptDir?: string)
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const outputPath = path.join(outputDir, `${path.parse(originalFileName).name}-${timestamp}.jpg`);
 
+    // Fetch and save the image
+    const response = await fetch(imageData);
+    const buffer = Buffer.from(await response.arrayBuffer());
+    
     // Save the image to ai_paintings directory
     await fs.writeFile(outputPath, buffer);
     console.log(`Image saved as: ${outputPath}`);
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error(`Error processing ${inputImagePath}:`, error);
+    // Don't exit process for batch processing
+    if (process.argv[2] !== '--batch') {
+      process.exit(1);
+    }
+  }
+}
+
+async function processDirectory(inputDir: string, promptDir: string): Promise<void> {
+  try {
+    const files = await fs.readdir(inputDir);
+    const imageFiles = files.filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return ext === '.jpg' || ext === '.jpeg' || ext === '.png';
+    });
+
+    if (imageFiles.length === 0) {
+      console.log('No image files found in directory');
+      return;
+    }
+
+    console.log(`Found ${imageFiles.length} images to process`);
+    
+    // Process images sequentially to avoid overwhelming the API
+    for (const file of imageFiles) {
+      const fullPath = path.join(inputDir, file);
+      console.log(`\nProcessing ${file}...`);
+      await processImage(fullPath, promptDir);
+    }
+
+    console.log('\nBatch processing complete!');
+
+  } catch (error) {
+    console.error('Error processing directory:', error);
     process.exit(1);
   }
 }
 
-// Get the arguments from command line
-const [inputImagePath, promptDir] = process.argv.slice(2);
+async function main() {  
+  const args = process.argv.slice(2);
+  
+  if (args.length < 2) {
+    console.error('Please provide required arguments');
+    console.log('Usage:');
+    console.log('  Single image: ts-node generatePaintedVersion.ts path/to/image.jpg path/to/prompt/directory');
+    console.log('  Batch process: ts-node generatePaintedVersion.ts --batch path/to/image/directory path/to/prompt/directory');
+    process.exit(1);
+  }
 
-// Run the function with the provided arguments
-generateAndSaveImage(inputImagePath, promptDir);
+  if (args[0] === '--batch') {
+    // Batch mode: --batch <inputDir> <promptDir>
+    if (args.length < 3) {
+      console.error('Please provide both input directory and prompt directory for batch mode');
+      process.exit(1);
+    }
+    const inputDir = args[1];
+    const promptDir = args[2];
+    await processDirectory(inputDir, promptDir);
+  } else {
+    // Single file mode: <inputPath> <promptDir>
+    const inputPath = args[0];
+    const promptDir = args[1];
+    await processImage(inputPath, promptDir);
+  }
+}
+
+// Run the script
+main().catch(error => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});
