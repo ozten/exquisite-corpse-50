@@ -22,8 +22,16 @@
             text-align: center;
         }
 
-        .image-container {
+        .gallery-wrapper {
+            position: relative;
             margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .image-container {
             max-width: 100%;
             height: 400px;
             display: flex;
@@ -44,6 +52,22 @@
             max-height: 100%;
             object-fit: contain;
             cursor: pointer;
+        }
+
+        .nav-button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            height: 50px;
+        }
+
+        .nav-button:hover {
+            background: #0056b3;
         }
 
         .navigation {
@@ -86,6 +110,11 @@
             .image-container {
                 height: 300px;
             }
+
+            .nav-button {
+                padding: 8px 16px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -97,10 +126,14 @@
             Press 'A' key or toggle button below for AI mode<br>
             Click image to download
         </div>
-        <div class="image-container">
-            <a id="download-link" href="" download>
-                <img id="current-image" src="" alt="Artwork">
-            </a>
+        <div class="gallery-wrapper">
+            <button class="nav-button" id="prev-button">←</button>
+            <div class="image-container">
+                <a id="download-link" href="" download>
+                    <img id="current-image" src="" alt="Artwork">
+                </a>
+            </div>
+            <button class="nav-button" id="next-button">→</button>
         </div>
         <div class="text-content" id="description"></div>
         <button class="ai-toggle" id="ai-toggle">Toggle AI Mode: OFF</button>
@@ -413,86 +446,81 @@
 ]
 
 
+};
 
+class Gallery {
+    constructor(config) {
+        this.config = config;
+        this.currentIndex = 0;
+        this.isAIMode = false;
+        this.imageElement = document.getElementById('current-image');
+        this.descriptionElement = document.getElementById('description');
+        this.aiToggle = document.getElementById('ai-toggle');
+        this.downloadLink = document.getElementById('download-link');
+        this.prevButton = document.getElementById('prev-button');
+        this.nextButton = document.getElementById('next-button');
 
+        this.setupEventListeners();
+        this.updateDisplay();
+    }
 
-
-
-
-
-
-
-        };
-
-        class Gallery {
-            constructor(config) {
-                this.config = config;
-                this.currentIndex = 0;
-                this.isAIMode = false;
-                this.imageElement = document.getElementById('current-image');
-                this.descriptionElement = document.getElementById('description');
-                this.aiToggle = document.getElementById('ai-toggle');
-                this.downloadLink = document.getElementById('download-link');
-
-                this.setupEventListeners();
-                this.updateDisplay();
+    setupEventListeners() {
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    this.navigate(-1);
+                    break;
+                case 'ArrowRight':
+                    this.navigate(1);
+                    break;
+                case 'a':
+                case 'A':
+                    this.toggleAIMode();
+                    break;
             }
-
-            setupEventListeners() {
-                document.addEventListener('keydown', (e) => {
-                    switch(e.key) {
-                        case 'ArrowLeft':
-                            this.navigate(-1);
-                            break;
-                        case 'ArrowRight':
-                            this.navigate(1);
-                            break;
-                        case 'a':
-                        case 'A':
-                            this.toggleAIMode();
-                            break;
-                    }
-                });
-
-                this.aiToggle.addEventListener('click', () => this.toggleAIMode());
-            }
-
-            navigate(direction) {
-                this.currentIndex = (this.currentIndex + direction + this.config.slides.length) % this.config.slides.length;
-                this.updateDisplay();
-            }
-
-            toggleAIMode() {
-                this.isAIMode = !this.isAIMode;
-                this.aiToggle.textContent = `Toggle AI Mode: ${this.isAIMode ? 'ON' : 'OFF'}`;
-                this.aiToggle.classList.toggle('active', this.isAIMode);
-                this.updateDisplay();
-            }
-
-            updateDisplay() {
-                const currentSlide = this.config.slides[this.currentIndex];
-                const currentImage = this.isAIMode ? currentSlide.ai_painting : currentSlide.preview;
-                
-                // Update image
-                this.imageElement.style.display = 'block';
-                this.imageElement.src = currentImage;
-                
-                // Update download link
-                this.downloadLink.href = currentImage;
-                
-                // Extract filename from path for download
-                const filename = currentImage.split('/').pop();
-                this.downloadLink.download = filename;
-
-                // Update text
-                this.descriptionElement.textContent = this.isAIMode ? currentSlide.ai_text : '';                    
-            }
-        }
-
-        // Initialize the gallery when the page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            new Gallery(config);
         });
+
+        this.aiToggle.addEventListener('click', () => this.toggleAIMode());
+        this.prevButton.addEventListener('click', () => this.navigate(-1));
+        this.nextButton.addEventListener('click', () => this.navigate(1));
+    }
+
+    navigate(direction) {
+        this.currentIndex = (this.currentIndex + direction + this.config.slides.length) % this.config.slides.length;
+        this.updateDisplay();
+    }
+
+    toggleAIMode() {
+        this.isAIMode = !this.isAIMode;
+        this.aiToggle.textContent = `Toggle AI Mode: ${this.isAIMode ? 'ON' : 'OFF'}`;
+        this.aiToggle.classList.toggle('active', this.isAIMode);
+        this.updateDisplay();
+    }
+
+    updateDisplay() {
+        const currentSlide = this.config.slides[this.currentIndex];
+        const currentImage = this.isAIMode ? currentSlide.ai_painting : currentSlide.preview;
+        
+        // Update image
+        this.imageElement.style.display = 'block';
+        this.imageElement.src = currentImage;
+        
+        // Update download link
+        this.downloadLink.href = currentImage;
+        
+        // Extract filename from path for download
+        const filename = currentImage.split('/').pop();
+        this.downloadLink.download = filename;
+
+        // Update text
+        this.descriptionElement.textContent = this.isAIMode ? currentSlide.ai_text : '';                    
+    }
+}
+
+// Initialize the gallery when the page loads
+document.addEventListener('DOMContentLoaded', () => {
+    new Gallery(config);
+});
     </script>
 </body>
 </html>
