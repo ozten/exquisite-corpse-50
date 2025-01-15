@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exquisite Corpose</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            background: #f0f0f0;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .image-container {
+            margin: 20px 0;
+            max-width: 100%;
+            height: 400px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .navigation {
+            margin: 20px 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .text-content {
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+
+        .ai-toggle {
+            margin: 20px 0;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .ai-toggle:hover {
+            background: #0056b3;
+        }
+
+        .ai-toggle.active {
+            background: #28a745;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .image-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Exquisite Corpose</h1>
+        <div class="navigation">
+            Use ← → arrow keys to navigate<br>
+            Press 'A' key or toggle button below for AI mode
+        </div>
+        <div class="image-container">
+            <img id="current-image" src="" alt="Artwork">
+        </div>
+        <div class="text-content" id="description"></div>
+        <button class="ai-toggle" id="ai-toggle">Toggle AI Mode: OFF</button>
+    </div>
+
+    <script>
+        // Configuration
+        const config = {
+            slides: [
+                {
+                    id: 'home',
+                    preview: './originals/IMG_3C078AB69E15-2.jpeg',
+                    ai_painting: './ai_paintings/IMG_3C078AB69E15-2.jpeg',
+                    text: 'Original drawing description',
+                    ai_text: `A surrealist painting in the style of Jean Cocteau. The top third features a messy nest of swirling red lines forming a chaotic, abstract hairdo. The lines are energetic and gestural, like scribbles or flames. The middle section depicts a minimalist face in profile view, drawn with a single continuous line. The facial features are understated yet expressive, capturing a pensive, introspective mood. Wispy marks suggest freckles or blemishes on the translucent skin. The bottom third shows the shoulders and chest as a simple, cloud-like shape floating atop a platform with scrawled handwriting that reads "Best in Show". The overall composition is whimsical and dreamlike, merging reality and imagination in an avant-garde spirit.`
+                },
+                {
+                    id: 'drawing1',
+                    preview: './originals/IMG_3C078AB69E15-1.jpeg',
+                    ai_painting: './ai_paintings/IMG_3C078AB69E15-1.jpeg',
+                    text: 'Original drawing description',
+                    ai_text: `A whimsical painting, divided into thirds:
+
+The top third depicts an expressive cartoonish face with large almond-shaped eyes reminiscent of those drawn by Disney animator Glen Keane. The eyes have long lashes and a mischievous glint. Sketchy eyebrows float above.
+
+The middle section shows a bulbous nose and grinning mouth with a gap tooth, in the energetic scrawling style of Quentin Blake illustrations, full of personality and movement.
+
+The bottom portion consists of a rounded, doughy body shape standing on thin bird-like legs and feet, surrounded by small sailboats, waves and fish. This area evokes the quirky characters and underwater scenes often present in the works of children's book illustrator Oliver Jeffers.
+
+Unifying the composition is a sketchy, gestural painting style with an economy of line. The artwork has a light-hearted, storybook feel in the manner of pen and ink character concept art.`
+                },
+                // Add more slides as needed
+            ]
+        };
+
+        class Gallery {
+            constructor(config) {
+                this.config = config;
+                this.currentIndex = 0;
+                this.isAIMode = false;
+                this.imageElement = document.getElementById('current-image');
+                this.descriptionElement = document.getElementById('description');
+                this.aiToggle = document.getElementById('ai-toggle');
+
+                this.setupEventListeners();
+                this.updateDisplay();
+            }
+
+            setupEventListeners() {
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            this.navigate(-1);
+                            break;
+                        case 'ArrowRight':
+                            this.navigate(1);
+                            break;
+                        case 'a':
+                        case 'A':
+                            this.toggleAIMode();
+                            break;
+                    }
+                });
+
+                this.aiToggle.addEventListener('click', () => this.toggleAIMode());
+            }
+
+            navigate(direction) {
+                this.currentIndex = (this.currentIndex + direction + this.config.slides.length) % this.config.slides.length;
+                this.updateDisplay();
+            }
+
+            toggleAIMode() {
+                this.isAIMode = !this.isAIMode;
+                this.aiToggle.textContent = `Toggle AI Mode: ${this.isAIMode ? 'ON' : 'OFF'}`;
+                this.aiToggle.classList.toggle('active', this.isAIMode);
+                this.updateDisplay();
+            }
+
+            updateDisplay() {
+                const currentSlide = this.config.slides[this.currentIndex];
+                
+                // Update image
+                /*if (this.currentIndex === 0) {
+                    this.imageElement.style.display = 'none';
+                } else {*/
+                    this.imageElement.style.display = 'block';
+                    this.imageElement.src = this.isAIMode ? currentSlide.ai_painting : currentSlide.preview;
+                // }
+
+                // Update text
+                this.descriptionElement.textContent = // this.isAIMode ? 
+                    currentSlide.ai_text;
+            }
+        }
+
+        // Initialize the gallery when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new Gallery(config);
+        });
+    </script>
+</body>
+</html>

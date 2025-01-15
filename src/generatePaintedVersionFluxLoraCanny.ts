@@ -1,4 +1,3 @@
-// src/generatePaintedVersion.ts
 import { fal } from "@fal-ai/client";
 import type { QueueStatus } from "@fal-ai/client";
 import dotenv from 'dotenv';
@@ -44,6 +43,22 @@ async function readPromptFile(promptDir: string, imagePath: string): Promise<str
 
 async function processImage(inputImagePath: string, promptDir: string): Promise<void> {
   try {
+    // Create output path using original name
+    const outputDir = path.join(process.cwd(), 'ai_paintings');
+    await fs.mkdir(outputDir, { recursive: true });
+    
+    const originalFileName = path.basename(inputImagePath);
+    const outputPath = path.join(outputDir, originalFileName);
+
+    // Check if output file already exists
+    try {
+      await fs.access(outputPath);
+      console.log(`Skipping ${inputImagePath} - output already exists at ${outputPath}`);
+      return;
+    } catch {
+      // File doesn't exist, continue processing
+    }
+
     // Convert image to base64
     const imageDataUri = await readImageFile(inputImagePath);
     console.log(`Image loaded successfully: ${inputImagePath}`);
@@ -54,7 +69,7 @@ async function processImage(inputImagePath: string, promptDir: string): Promise<
 
     const result = await fal.subscribe(FAL_MODEL, {
       input: {
-        prompt,
+        prompt: `A Salvidor Dali oil painting`, // prompt
         num_inference_steps: 28,
         guidance_scale: 30,
         num_images: 1,
@@ -88,15 +103,6 @@ async function processImage(inputImagePath: string, promptDir: string): Promise<
     if (!imageData) {
       throw new Error('No image data generated');
     }
-
-    // Ensure ai_paintings directory exists
-    const outputDir = path.join(process.cwd(), 'ai_paintings');
-    await fs.mkdir(outputDir, { recursive: true });
-
-    // Create filename using original name but in ai_paintings directory
-    const originalFileName = path.basename(inputImagePath);
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const outputPath = path.join(outputDir, `${path.parse(originalFileName).name}-${timestamp}.jpg`);
 
     // Fetch and save the image
     const response = await fetch(imageData);

@@ -18,9 +18,8 @@ class ExquisiteCorpseAnalyzer {
     });
 
     this.systemPrompt = `
-      Please look at this exquisite corpse drawing. 
-      Think about which famouse artist or illustrator you could see creating this.      
-      Please describe the most important features and then note "in the style of" and the artist's name.
+      You are a helpful art historian specializing in the original surrealist period as well as the more recent Juxtapose magazine artists.
+      When thinking, you do not output an response. You do not say the word "prompt" at the start. YOu just output a prompt.
     `;
   }
 
@@ -47,7 +46,11 @@ class ExquisiteCorpseAnalyzer {
           content: [
             {
               type: "text",
-              text: "Please analyze this exquisite corpse drawing and create a detailed prompt for Flux image generation that captures its style and content. Describe each third of the image separately but maintain coherence."
+              text: `Please analyze this drawing and capture it's most important features and themes.
+              Choose a surrealist painter that would excel at executing these ideas.
+              Do not output anything, except when you are ready,
+              then output a prompt that instructs
+              the model to create an oil painting in the style of that surreal artist with those features and themes.`
             },
             {
               type: "image",

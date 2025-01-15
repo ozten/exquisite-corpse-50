@@ -13,3 +13,8 @@
    5.2 Allows easy switching between original and AI painting
 
 6. Deploy for public access
+
+
+## Resize
+
+    for file in *.jpeg; do sips -z 1568 1200 "$file" --out "../preview/${file}"; done
